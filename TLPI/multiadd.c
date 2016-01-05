@@ -1,6 +1,6 @@
 #include <myLinux.h>
 
-#define NUM 1000000000
+#define NUM 10000000000
 typedef long long LL;
 
 LL sum;
@@ -8,13 +8,16 @@ pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 void *thr_fn(void *arg)
 {
-    while (sum != NUM) {
-        pthread_mutex_lock(&lock);
-        ++sum;
-        pthread_mutex_unlock(&lock);
-    }
+    LL end = (LL) arg, i, t = 0;
 
-    return (void *) 1;
+    for (i = 0; i < end; ++i)
+        ++t;
+
+    pthread_mutex_lock(&lock);
+    sum += t;
+    pthread_mutex_unlock(&lock);
+
+    return arg;
 }
 
 int main(int argc, char *argv[])
@@ -26,26 +29,20 @@ int main(int argc, char *argv[])
 
     int thread_num = atoi(argv[1]);
     int i;
+    LL tar = NUM / thread_num;
+    sum = NUM % thread_num;
     int time0 = time(NULL), time1;
-    pthread_t tid;
-    pthread_attr_t attr;
+    pthread_t tid[100];
 
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-
-    for (i = 1; i < thread_num; ++i) {
-        pthread_create(&tid, &attr, thr_fn, NULL);
+    for (i = 0; i < thread_num; ++i) {
+        pthread_create(&tid[i], NULL, thr_fn, (void *) tar);
     }
+    for (i = 0; i < thread_num; ++i)
+        pthread_join(tid[i], NULL);
 
-    while (sum != NUM) {
-        pthread_mutex_lock(&lock);
-        ++sum;
-        pthread_mutex_unlock(&lock);
-    }
     time1 = time(NULL);
-    printf("time used: %d\n", time1 - time0);
+    printf("result is %lld\ntime used: %d\n", sum, time1 - time0);
 
-    pthread_attr_destroy(&attr);
     pthread_mutex_destroy(&lock);
     return 0;
 }
