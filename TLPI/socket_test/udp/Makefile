@@ -1,7 +1,6 @@
 all: Server Client
 
 CFLAGS = -I/home/qiu/.lib
-
 Server: server.c
 	gcc $(CFLAGS) $< -o $@
 

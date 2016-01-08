@@ -1,59 +1,47 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
+#include <myLinux.h>
 
-#define SERBER_PORT 8000
+#define SERVER_PORT 8000
 
 int main(int argc, char *argv[])
 {
-    struct sockaddr_in serveraddr, clientaddr;
-    int socketfd, addrlen, confd;
-    char ipstr[128];
-    char buf[128];
-    int len, i;
+    struct sockaddr_in clientAddr, serverAddr;
+    int i, listenFd, connectFd, len;
+    socklen_t clientSocketLen;
+    char strIp[INET_ADDRSTRLEN];
+    char buf[1024];
 
-    /*
-     * 1. socket
-     * 2. bind
-     * 3. listen
-     * 4. accept
-     */
-    socketfd = socket(AF_INET, SOCK_STREAM, 0);
+    listenFd = socket(AF_INET, SOCK_STREAM, 0);
 
-    bzero(&serveraddr, sizeof (serveraddr));
-    serveraddr.sin_family = AF_INET;
-    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY); // "192.168.182.129";
-    serveraddr.sin_port = htons(SERBER_PORT);
-    bind(socketfd, (struct sockaddr *) &serveraddr, sizeof (serveraddr));
+    memset(&serverAddr, 0, sizeof (serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serverAddr.sin_port = htons(SERVER_PORT);
+    bind(listenFd, (struct sockaddr *) &serverAddr, sizeof (serverAddr));
 
-    listen(socketfd, 128);
-    const char *tmpc = inet_ntop(AF_INET, &serveraddr.sin_addr.s_addr, ipstr, sizeof (ipstr));
-    printf("server ip %s\tport %d\n", tmpc, ntohs(serveraddr.sin_port));
+    listen(listenFd, 20);
+    printf("Server %s:%d\n", 
+            inet_ntop(AF_INET, &serverAddr.sin_addr, strIp, sizeof (strIp)),
+            ntohs(serverAddr.sin_port)
+          );
+    printf("Accepting connections...\n");
 
     while (1) {
-        addrlen = sizeof (clientaddr);
-        confd = accept(socketfd, (struct sockaddr *) &clientaddr, &addrlen);
-
-        tmpc = inet_ntop(AF_INET, &clientaddr.sin_addr.s_addr, ipstr, sizeof (ipstr));
-        printf("client ip %s\tport %d\n", tmpc, ntohs(clientaddr.sin_port));
-
-        len = read(confd, buf, sizeof (buf));
-        i = 0;
-        while (i < len) {
-            buf[i] = toupper(buf[i]);
-            ++i;
+        clientSocketLen = sizeof (clientAddr);
+        connectFd = accept(listenFd, (struct sockaddr *) &clientAddr, &clientSocketLen);
+        printf("client from %s:%d\n", inet_ntop(AF_INET, &clientAddr.sin_addr, strIp, sizeof (strIp)),
+                ntohs(clientAddr.sin_port)
+              );
+        if (fork() == 0) {
+            while (1) {
+                len = read(connectFd, buf, sizeof (buf));
+                buf[len] = '\0';
+                for (i = 0; i < len; ++i)
+                    buf[i] = toupper(buf[i]);
+                write(connectFd, buf, len);
+            }
         }
-        write(confd, buf, len);
-
-        close(confd);
     }
-    close(socketfd);
+    close(listenFd);
 
     return 0;
 }
