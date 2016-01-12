@@ -3,8 +3,11 @@
 
 #define MAXLINE 80
 #define SERV_PORT 8000
-#define SERV_IP "192.168.182.129"
+// #define SERV_IP "192.168.182.129"
+// #define SERV_IP "115.159.54.250"
+#define SERV_IP "0.0.0.0"
 
+/* 打印选项 */
 void printMenu()
 {
     system("clear");
@@ -29,6 +32,7 @@ int main(int argc, char *argv[])
     servaddr.sin_port = htons(SERV_PORT);
     inet_pton(AF_INET, SERV_IP, &servaddr.sin_addr);
 
+    /* 连接到服务器 */
     Connect(sockfd, (struct sockaddr *) &servaddr, sizeof (servaddr));
     printf("Enter your name(20 Bytes at most): ");
     scanf("%s", name);
@@ -38,26 +42,28 @@ int main(int argc, char *argv[])
     while (1) {
         printMenu();
         scanf("%d", &id);
+        /* 输入0则退出程序 */
         if (id == 0) {
             printf("Bye bye.\n");
             exit(0);
+            /* 输入1则打印登录列表 */
         } else if (id == 1) {
             sprintf(buf, "%d %s", LISTUSER, name);
-            printf("buf1 is %s\n", buf);
             Write(sockfd, buf, strlen(buf) + 1);
-            printf("buf2 is %s\n", buf);
             n = Read(sockfd, buf, sizeof (buf));
             if (n == 0)
                 printf("the other side closed. id = 1\n");
             buf[n] = '\0';
-            printf("buf is %s\n", buf);
-            sleep(10);
+            printf("List:\n %s\n", buf);
+            sleep(3);
+            /* 开始聊天，ctrl-d退出聊天窗口 */
         } else if (id == 2) {
             printf("enter the name to talk: ");
             scanf("%s", name2);
             printf("enter message to talk: \n");
             static char str[1024];
             while (fgets(str, sizeof (str), stdin)) {
+                if (*str == '\n') continue;
                 sprintf(buf, "%d %s %s %s", MSG, name, name2, str);
                 Write(sockfd, buf, strlen(buf) + 1);
                 n = Read(sockfd, buf, sizeof (buf));
@@ -68,16 +74,6 @@ int main(int argc, char *argv[])
             }
         }
     }
-    /*
-       while (fgets(buf, MAXLINE, stdin)) {
-       Write(sockfd, buf, strlen(buf));
-       n = Read(sockfd, buf, sizeof (buf));
-       if (n == 0)
-       printf("the other side closed.\n");
-       else
-       Write(STDOUT_FILENO, buf, n);
-       }
-       */
     Close(sockfd);
     return 0;
 }

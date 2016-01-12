@@ -1,5 +1,4 @@
-/* select可以用来实现多路I/O复用，然而能支持的客户端连接数却不能超过1024，
- * 但是这个数字对于小型局域网是够用的。于是这个即时通讯软件就采用select来实现了。
+/* 即时通讯程序的小demo：
  */
 
 /* 需要的头文件都包裹在这个头文件里 */
@@ -16,6 +15,7 @@ struct login_t {
     char *name;
 } usr[1000];
 
+/* 获得当前登录列表 */
 char *getUsrList()
 {
     static char buf[1024];
@@ -34,16 +34,18 @@ char *getUsrList()
     return buf;
 }
 
+/* 根据用户名寻找相应的socket fd */
 int findByName(const char *name)
 {
     int i;
     for (i = 0; i < 1000; ++i) {
         if (usr[i].fd == 0) return -1;
         if (!strcmp(name, usr[i].name))
-            return i;
+            return usr[i].fd;
     }
 }
 
+/* 注册用户名 */
 void signinName(const char *name, int fd)
 {
     int i;
@@ -57,6 +59,7 @@ void signinName(const char *name, int fd)
     }
 }
 
+/* 解析用户发送过来的数据 */
 void parse_data(int sockfd, char *buf)
 {
     char from[21], to[21];
@@ -194,7 +197,6 @@ int main(int argc, char *argv[])
                     int j;
                     /* 接下来解析该数据包 */
                     parse_data(sockfd, buf);
-                    printf("test...\n");
                 }
                 if (!--nready)
                     break;
