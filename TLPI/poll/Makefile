@@ -1,6 +1,7 @@
 all: Server Client
 
-Flags = -I . -L .
+LibDir = /home/qiu/.lib
+Flags = -I $(LibDir) -L $(LibDir)
 Link = -la -lpthread
 
 Server: server.c
