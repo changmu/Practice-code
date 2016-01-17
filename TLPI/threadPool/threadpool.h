@@ -9,3 +9,5 @@ int threadpool_add(threadpool_t *pool, void *(*function)(void *arg), void *arg);
 int threadpool_destroy(threadpool_t *pool);
 
 int threadpool_all_threadnum(threadpool_t *pool);
+
+int threadpool_busy_threadnum(threadpool_t *pool);
