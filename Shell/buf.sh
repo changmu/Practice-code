@@ -1,6 +1,8 @@
 #!/bin/bash
 
-for i in {1..10}
-do
-    echo -n "$i "
-done
+a="^H^h"
+
+echo "abcdef"
+echo
+echo -n "abcdef$a "
+echo -n "abcdef$a"
