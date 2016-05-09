@@ -1,6 +1,7 @@
 #include <myLinux.h>
 
 #define SERVER_IP "127.0.0.1"
+#define SERVER_PORT 8086
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +14,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in servaddr;
     memset(&servaddr, 0, sizeof (servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(5188);
+    servaddr.sin_port = htons(SERVER_PORT);
     servaddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
     ret = connect(sock, (struct sockaddr *) &servaddr, sizeof (servaddr));

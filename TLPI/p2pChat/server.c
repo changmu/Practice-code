@@ -3,20 +3,11 @@
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 8086
 
-void do_server(int conn)
+void handler(int signum)
 {
-    static char recvbuf[1024];
-    static int ret;
-    while (1) {
-        memset(recvbuf, 0, sizeof (recvbuf));
-        ret = read(conn, recvbuf, sizeof (recvbuf));
-        if (ret == 0) {
-            printf("client closed.\n");
-            return; 
-        } else if (ret == -1) { ERR_EXIT("read"); }
-        printf("%s", recvbuf);
-        write(conn, recvbuf, strlen(recvbuf));
-    }
+    printf("recv signal:%d.\n", signum);
+    printf("child exit.\n");
+    exit(EXIT_SUCCESS);
 }
 
 int main()
@@ -59,13 +50,29 @@ int main()
         pid = fork();
         if (pid < 0) { ERR_EXIT("fork"); }
 
-        if (pid == 0) { // child
-            close(listenfd);
-            do_server(conn);
-            close(conn);
+        if (pid == 0) {
+            signal(SIGUSR1, handler);
+            char sendbuf[1024] = {0};
+            while (fgets(sendbuf, sizeof(sendbuf), stdin)) {
+                write(conn, sendbuf, strlen(sendbuf));
+                memset(sendbuf, 0, sizeof(sendbuf));
+            }
+            // exit(EXIT_SUCCESS);
+        } else { // parent responses for reading
+            char recvbuf[1024];
+            int ret;
+            while (1) {
+                memset(recvbuf, 0, sizeof(recvbuf));
+                ret = read(conn, recvbuf, sizeof(recvbuf));
+                if (ret == -1) { ERR_EXIT("read"); }
+                else if (ret == 0) { 
+                    printf("client closed.\n");
+                    break;
+                } 
+                fprintf(stdout, "recv %d:%s", (int) strlen(recvbuf), recvbuf);
+            }
+            kill(pid, SIGUSR1);
             exit(EXIT_SUCCESS);
-        } else {
-            close(conn);
         }
     }
     close(listenfd);
