@@ -3,19 +3,33 @@
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 8086
 
-void do_server(int conn)
+struct packet {
+    int len;
+    char buf[1024];
+};
+
+void do_server(int sock)
 {
-    static char recvbuf[1024];
+    struct packet recvbuf;
     static int ret;
+    int n;
     while (1) {
-        memset(recvbuf, 0, sizeof (recvbuf));
-        ret = read(conn, recvbuf, sizeof (recvbuf));
-        if (ret == 0) {
+        memset(&recvbuf, 0, sizeof(recvbuf));
+        ret = readn(sock, &recvbuf.len, sizeof(int));
+        if (ret == -1) { ERR_EXIT("read"); }
+        else if (ret < 4) {
             printf("client closed.\n");
             return; 
-        } else if (ret == -1) { ERR_EXIT("read"); }
-        printf("%s", recvbuf);
-        write(conn, recvbuf, strlen(recvbuf));
+        } 
+        n = ntohl(recvbuf.len);
+        ret = readn(sock, recvbuf.buf, n);
+        if (ret == -1) { ERR_EXIT("read"); }
+        else if (ret < n) {
+            printf("client closed.\n");
+            return; 
+        } 
+        printf("%s", recvbuf.buf);
+        writen(sock, &recvbuf, 4 + n);
     }
 }
 
@@ -48,12 +62,12 @@ int main()
 
     struct sockaddr_in peeraddr;
     socklen_t peerlen = sizeof (peeraddr);
-    int conn;
+    int sock;
 
     pid_t pid;
     while (1) {
-        conn = accept(listenfd, (struct sockaddr *) &peeraddr, &peerlen);
-        if (conn < 0) { ERR_EXIT("accept"); }
+        sock = accept(listenfd, (struct sockaddr *) &peeraddr, &peerlen);
+        if (sock < 0) { ERR_EXIT("accept"); }
         printf("Client: %s:%hu\n", inet_ntoa(peeraddr.sin_addr), ntohs(peeraddr.sin_port));
 
         pid = fork();
@@ -61,11 +75,11 @@ int main()
 
         if (pid == 0) { // child
             close(listenfd);
-            do_server(conn);
-            close(conn);
+            do_server(sock);
+            close(sock);
             exit(EXIT_SUCCESS);
         } else {
-            close(conn);
+            close(sock);
         }
     }
     close(listenfd);

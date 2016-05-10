@@ -54,7 +54,7 @@ int main()
             signal(SIGUSR1, handler);
             char sendbuf[1024] = {0};
             while (fgets(sendbuf, sizeof(sendbuf), stdin)) {
-                write(conn, sendbuf, strlen(sendbuf));
+                writen(conn, sendbuf, sizeof(sendbuf));
                 memset(sendbuf, 0, sizeof(sendbuf));
             }
             // exit(EXIT_SUCCESS);
@@ -63,8 +63,8 @@ int main()
             int ret;
             while (1) {
                 memset(recvbuf, 0, sizeof(recvbuf));
-                ret = read(conn, recvbuf, sizeof(recvbuf));
-                if (ret == -1) { ERR_EXIT("read"); }
+                ret = readn(conn, recvbuf, sizeof(recvbuf));
+                if (ret == -1) { ERR_EXIT("readn"); }
                 else if (ret == 0) { 
                     printf("client closed.\n");
                     break;

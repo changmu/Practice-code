@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
         char recvbuf[1024];
         while (1) {
             memset(recvbuf, 0, sizeof (recvbuf));
-            ret = read(sock, recvbuf, sizeof(recvbuf));
+            ret = readn(sock, recvbuf, sizeof(recvbuf));
             if (ret == -1) { ERR_EXIT("read"); }
             else if (ret == 0) { 
                 printf("peer closed\n");
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     } else {
         char sendbuf[1024];
         while (fgets(sendbuf, sizeof(sendbuf), stdin)) {
-            write(sock, sendbuf, strlen(sendbuf));
+            writen(sock, sendbuf, sizeof(sendbuf));
             memset(sendbuf, 0, sizeof(sendbuf));
         }
         // close(sock);
