@@ -3,10 +3,12 @@
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 8086
 
+/*
 struct packet {
     int len;
     char buf[1024];
 };
+*/
 
 int main(int argc, char *argv[])
 {
@@ -22,38 +24,36 @@ int main(int argc, char *argv[])
     servaddr.sin_port = htons(SERVER_PORT);
     servaddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
-    ret = connect(sock, (struct sockaddr *) &servaddr, sizeof (servaddr));
+    ret = connect(sock, (struct sockaddr *) &servaddr, sizeof(servaddr));
     if (ret < 0) { ERR_EXIT("connect"); }
 
-    struct packet sendbuf;
-    struct packet recvbuf;
-    memset(&sendbuf, 0, sizeof (sendbuf));
-    memset(&recvbuf, 0, sizeof (recvbuf));
-    int n;
-    while (fgets(sendbuf.buf, sizeof (sendbuf.buf), stdin)) {
-        n = strlen(sendbuf.buf);
-        sendbuf.len = htonl(n);
-        writen(sock, &sendbuf, 4 + n);
+    struct sockaddr_in localaddr;
+    socklen_t addrlen = sizeof(localaddr);
+    ret = getsockname(sock, (struct sockaddr *) &localaddr, &addrlen);
+    if (ret < 0) { ERR_EXIT("getsockname"); }
+    printf("Client: %s:%hu\n", inet_ntoa(localaddr.sin_addr), ntohs(localaddr.sin_port));
 
+    struct sockaddr_in peeraddr;
+    addrlen = sizeof(peeraddr);
+    ret = getpeername(sock, (struct sockaddr *) &peeraddr, &addrlen);
+    if (ret < 0) { ERR_EXIT("getsockname"); }
+    printf("Server: %s:%hu\n", inet_ntoa(peeraddr.sin_addr), ntohs(peeraddr.sin_port));
 
-        ret = readn(sock, &recvbuf.len, sizeof(int));
-        if (ret == -1) { ERR_EXIT("read"); }
-        else if (ret < 4) {
-            printf("client closed.\n");
+    char sendbuf[1024] = {0};
+    char recvbuf[1024] = {0};
+    while (fgets(sendbuf, sizeof(sendbuf), stdin)) {
+        writen(sock, sendbuf, strlen(sendbuf));
+
+        ret = readline(sock, recvbuf, sizeof(recvbuf));
+        if (ret == -1) { ERR_EXIT("readline"); }
+        else if (ret == 0) {
+            printf("server closed.\n");
             break;
         } 
-        n = ntohl(recvbuf.len);
-        ret = readn(sock, recvbuf.buf, n);
-        if (ret == -1) { ERR_EXIT("read"); }
-        else if (ret < n) {
-            printf("client closed.\n");
-            break;
-        } 
 
-
-        printf("%s", recvbuf.buf);
-        memset(&recvbuf, 0, sizeof(recvbuf));
-        memset(&sendbuf, 0, sizeof(sendbuf));
+        printf("recv: %s", recvbuf);
+        memset(recvbuf, 0, sizeof(recvbuf));
+        memset(sendbuf, 0, sizeof(sendbuf));
     }
     close(sock);
 

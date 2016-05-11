@@ -3,33 +3,26 @@
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 8086
 
+/*
 struct packet {
     int len;
     char buf[1024];
 };
-
+*/
 void do_server(int sock)
 {
-    struct packet recvbuf;
+    char recvbuf[1024];
     static int ret;
-    int n;
     while (1) {
-        memset(&recvbuf, 0, sizeof(recvbuf));
-        ret = readn(sock, &recvbuf.len, sizeof(int));
-        if (ret == -1) { ERR_EXIT("read"); }
-        else if (ret < 4) {
-            printf("client closed.\n");
-            return; 
-        } 
-        n = ntohl(recvbuf.len);
-        ret = readn(sock, recvbuf.buf, n);
-        if (ret == -1) { ERR_EXIT("read"); }
-        else if (ret < n) {
-            printf("client closed.\n");
-            return; 
-        } 
-        printf("%s", recvbuf.buf);
-        writen(sock, &recvbuf, 4 + n);
+        memset(recvbuf, 0, sizeof(recvbuf));
+        ret = readline(sock, recvbuf, 1024);
+        if (ret == -1) { ERR_EXIT("readline"); }
+        if (ret == 0) {
+            printf("client close\n");
+            break;
+        }
+        printf("recv: %s", recvbuf);
+        writen(sock, recvbuf, strlen(recvbuf));
     }
 }
 
