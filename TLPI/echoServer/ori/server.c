@@ -26,8 +26,15 @@ void do_server(int sock)
     }
 }
 
+void handle_sigchld(int sig)
+{
+    wait(NULL);
+}
+
 int main()
 {
+    // signal(SIGCHLD, SIG_IGN);
+    signal(SIGCHLD, handle_sigchld);
     int listenfd;
     struct sockaddr_in servaddr;
     int ret;
