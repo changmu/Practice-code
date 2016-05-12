@@ -1,3 +1,8 @@
+/*
+ * implementing concurrence with 'single process and select'
+ * author: qzg
+ * complete time: 2016.05.12
+ */
 #include <myLinux.h>
 
 #define SERVER_IP "127.0.0.1"
@@ -10,20 +15,20 @@ struct packet {
 };
 */
 
-void do_server(int sock)
+void echo_server(int conn)
 {
     char recvbuf[1024];
     static int ret;
     while (1) {
         memset(recvbuf, 0, sizeof(recvbuf));
-        ret = readline(sock, recvbuf, 1024);
+        ret = readline(conn, recvbuf, 1024);
         if (ret == -1) { ERR_EXIT("readline"); }
         if (ret == 0) {
             printf("client close\n");
             break;
         }
         printf("recv: %s", recvbuf);
-        writen(sock, recvbuf, strlen(recvbuf));
+        writen(conn, recvbuf, strlen(recvbuf));
     }
 }
 
@@ -62,13 +67,13 @@ int main()
     if (ret < 0) { ERR_EXIT("listen"); }
 
     struct sockaddr_in peeraddr;
-    socklen_t peerlen = sizeof (peeraddr);
-    int sock;
-
+    socklen_t peerlen;
+    int conn;
+/*
     pid_t pid;
     while (1) {
-        sock = accept(listenfd, (struct sockaddr *) &peeraddr, &peerlen);
-        if (sock < 0) { ERR_EXIT("accept"); }
+        conn = accept(listenfd, (struct sockaddr *) &peeraddr, &peerlen);
+        if (conn < 0) { ERR_EXIT("accept"); }
         printf("Client: %s:%hu\n", inet_ntoa(peeraddr.sin_addr), ntohs(peeraddr.sin_port));
 
         pid = fork();
@@ -76,14 +81,88 @@ int main()
 
         if (pid == 0) { // child
             close(listenfd);
-            do_server(sock);
-            close(sock);
+            do_server(conn);
+            close(conn);
             exit(EXIT_SUCCESS);
         } else {
-            close(sock);
+            close(conn);
         }
     }
     close(listenfd);
+*/
+    int i;
+    int client[FD_SETSIZE];
 
+    for (i = 0; i < FD_SETSIZE; ++i)
+        client[i] = -1;
+
+    int nready;
+    int maxfd = listenfd;
+    int maxi = 0;   // the max not idle position
+    fd_set rset;
+    fd_set allset;
+
+    FD_ZERO(&rset);
+    FD_ZERO(&allset);
+    FD_SET(listenfd, &allset);
+
+    while (1) {
+        rset = allset;
+        nready = select(maxfd + 1, &rset, NULL, NULL, NULL);
+        if (nready == -1) {
+            if (errno == EINTR) continue;
+
+            ERR_EXIT("select");
+        }
+        if (nready == 0) continue;
+
+        if (FD_ISSET(listenfd, &rset)) {
+            peerlen = sizeof(peeraddr);
+            conn = accept(listenfd, (struct sockaddr *) &peeraddr, &peerlen);
+            if (conn < 0) { ERR_EXIT("accept"); }
+
+            maxfd = MAX(maxfd, conn);
+            FD_SET(conn, &allset);
+
+            for (i = 0; i < FD_SETSIZE; ++i) {
+                if (client[i] < 0) {
+                    client[i] = conn;
+                    maxi = MAX(maxi, i);
+                    break;
+                }
+            }
+            if (i == FD_SETSIZE) {
+                fprintf(stderr, "too many clients.\n");
+                exit(EXIT_FAILURE);
+            }
+
+            printf("Client: %s:%hu\n", inet_ntoa(peeraddr.sin_addr), ntohs(peeraddr.sin_port));
+            if (--nready <= 0) 
+                continue;
+        }
+
+        for (i = 0; i <= maxi; ++i) {
+            conn = client[i];
+            if (conn == -1)
+                continue;
+
+            if (FD_ISSET(conn, &rset)) {
+                char recvbuf[1024];
+                memset(recvbuf, 0, sizeof(recvbuf));
+                ret = readline(conn, recvbuf, 1024);
+                if (ret == -1) { ERR_EXIT("readline"); }
+                if (ret == 0) {
+                    printf("client close\n");
+                    FD_CLR(conn, &allset);
+                    client[i] = -1;
+                }
+                printf("recv: %s", recvbuf);
+                writen(conn, recvbuf, strlen(recvbuf));
+
+                if (--nready <= 0)
+                    break;
+            }
+        }
+    }
     return 0;
 }
