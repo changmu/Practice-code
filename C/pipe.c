@@ -1,37 +1,27 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include "my_unix.h"
 
 int main()
 {
-    int fd[2];
-    pid_t pid;
-    char str[1024] = "hello world";
-    char buf[1024];
+    int pipefd[2];
+    char buf[] = "hello";
 
-    if (pipe(fd) < 0) {
-        perror("pipe");
-        exit(1);
-    }
+    // 1. 创建管道
+    pipe(pipefd);
 
-    pid = fork();
-    // 父写子读
-    if (pid > 0) {
-        // in parent, close parent read
-        close(fd[0]);
-        write(fd[1], str, strlen(str));
-        wait(NULL);
-    } else if (pid == 0) {
-        // in child, close child write
-        int len;
-        close(fd[1]);
-        len = read(fd[0], buf, sizeof(buf));
-        // sprintf(str, "child %s", buf);
-        write(STDOUT_FILENO, str, strlen(str));
+    // 2. 创建子进程
+    if (fork()) {
+        // 父进程
+        write(pipefd[1], buf, 6);
+        // wait(NULL);
+        close(pipefd[1]);
+        exit(0);
     } else {
-        perror("fork");
-        exit(1);
+        // 子进程
+        read(pipefd[0], buf, 6);
+        printf("Child is %s.\n", buf);
+        close(pipefd[0]);
+        exit(0);
     }
+
     return 0;
 }

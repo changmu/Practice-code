@@ -1,20 +1,11 @@
-#include <stdio.h>
+// #include <myLinux.h>
 #include <unistd.h>
 
-int main()
+int main(int argc, char **argv)
 {
-    /*
-    if (fork() > 0) {
-        printf("I am parent.\n");
-        // execlp("ps", "ps", "aux", NULL);
-    } else {
-        // execl("~/C/app", "app", NULL);
-        printf("I am child.\n");
-    }
-    */
-    int n = 10;
-    while (n--) {
-        if (fork() == 0) while (1);
-    }
+    char * const ls_argv[] = {"ls", "-l", NULL};
+    char * const ls_envp[] = {"PATH=/bin:/home", "TERM=console", NULL};
+
+    execve("/bin/ls", ls_argv, ls_envp);
     return 0;
 }
