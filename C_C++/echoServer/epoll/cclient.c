@@ -2,7 +2,8 @@
 
 // #define SERVER_IP "127.0.0.1"
 // #define SERVER_PORT 8086
-#define SERVER_IP "115.159.41.73"
+#define SERVER_IP "121.42.48.50"
+// #define SERVER_IP "115.159.41.73"
 #define SERVER_PORT 80
 
 int main(int argc, char *argv[])
