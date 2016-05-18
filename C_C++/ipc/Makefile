@@ -1,6 +1,6 @@
 .PHONY: clean all
 
-BIN	= msg_get msg_rmid msg_stat msg_set
+BIN	= msg_get msg_rmid msg_stat msg_set msg_snd
 CC	= gcc
 CXX	= g++
 LIB_DIR	= $(HOME)/.lib
