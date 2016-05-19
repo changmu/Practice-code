@@ -315,7 +315,7 @@ int is_thread_alive(pthread_t tid)
     return kill_rc != ESRCH;
 }
 
-#if 0
+#if 1
 void *process(void *arg)
 {
     printf("thread %#x working on task %d\n", (unsigned) pthread_self(), *(int *) arg);

@@ -1,8 +1,9 @@
-all: ThreadPool
+BIN= threadpool
+all: $(BIN)
 
-ThreadPool: threadpool.c
+threadpool: threadpool.c
 	gcc $< -o $@ -lpthread
 
 .PHONY: clean
 clean:
-	-rm -f ThreadPool
+	-rm -f $(BIN)
