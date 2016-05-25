@@ -5,8 +5,6 @@
 
 void echo_cli(int sock)
 {
-        int ret;
-
         struct sockaddr_in servaddr;
         memset(&servaddr, 0, sizeof(servaddr));
         servaddr.sin_family = AF_INET;
@@ -17,25 +15,16 @@ void echo_cli(int sock)
 
         char sendbuf[1024] = {0};
         char recvbuf[1024] = {0};
-        // while (fgets(sendbuf, sizeof(sendbuf), stdin)) {
-                while (1) {
-                // int ret = sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *) &servaddr, sizeof(servaddr));
-                // if (ret < 0)
-                        // ERR_EXIT("sendto");
-                
-                
-                for (ret = 0; ; ++ret) {
-                        sprintf(sendbuf, "%d", ret);
-                        printf("%s\n", sendbuf);
-                        sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *) &servaddr, sizeof(servaddr));
-                }
-/*
+        while (fgets(sendbuf, sizeof(sendbuf), stdin)) {
+                int ret = sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *) &servaddr, sizeof(servaddr));
+                if (ret < 0)
+                        ERR_EXIT("sendto");
+
                 ret = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, NULL, NULL);
                 if (ret < 0)
                         ERR_EXIT("recvfrom");
                 
                 fputs(recvbuf, stdout);
-                */
                 memset(sendbuf, 0, sizeof(sendbuf));
                 memset(recvbuf, 0, sizeof(recvbuf));
         }

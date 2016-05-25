@@ -118,7 +118,7 @@ void get_command(int i)
 {
         /* cat < test.txt | grep -n public > test2.txt & */
         int j = 0;
-        int inword = 0;
+        // int inword = 0;
         while (*lineptr != '\0') {
                 while (*lineptr == ' ' || *lineptr == '\t')
                         ++lineptr;
@@ -127,14 +127,14 @@ void get_command(int i)
                 while (*lineptr != '\0' && *lineptr != ' ' && *lineptr != '\t' && *lineptr != '\n'
                                 && *lineptr != '<' && *lineptr != '>' && *lineptr != '|' && *lineptr != '&') {
                         *avptr++ = *lineptr++;
-                        inword = 1;
+                        // inword = 1;
                 }
                 *avptr++ = '\0';
 
                 switch (*lineptr) {
                         case ' ':
                         case '\t':
-                                inword = 0;
+                                // inword = 0;
                                 ++j;
                                 break;
                         case '<':
@@ -142,8 +142,8 @@ void get_command(int i)
                         case '|':
                         case '&':
                         case '\n':
-                                if (inword == 0)
-                                        cmd[i].args[j] = NULL;
+                                // if (inword == 0)
+                                        // cmd[i].args[j] = NULL;
                                 return;
                         default: /* for '\0' */
                                 return;
