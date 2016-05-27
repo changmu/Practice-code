@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "miniftp: must be started as root\n");
                 exit(EXIT_FAILURE);
         } 
+        parseconf_load_file(MINIFTP_CONF_PATH);
         /*================testcode begin=============================*/
         /*char str1[] = "  a b";
         char str2[] = "             ";
@@ -35,7 +36,6 @@ int main(int argc, char *argv[])
 
         printf("str5=%u\n", str_octal_to_uint("0711"));*/
         /*================testcode end=============================*/
-        parseconf_load_file(MINIFTP_CONF_PATH);
 /*
 extern int tunable_pasv_enable;
 extern int tunable_port_enable;
@@ -51,6 +51,7 @@ extern unsigned tunable_upload_max_rate;
 extern unsigned tunable_download_max_rate;
 extern const char *tunable_listen_addr;
 */
+
 printf("tunable_pasv_enable=%d\n", tunable_pasv_enable);
 printf("tunable_port_enable=%d\n", tunable_port_enable);
 printf("tunable_listen_port=%u\n", tunable_listen_port);
@@ -68,40 +69,41 @@ if (tunable_listen_addr == NULL)
         printf("tunable_download_max_rate=null\n");
 else
         printf("tunable_listen_addr=%s\n", tunable_listen_addr);
-list_common();
+        // list_common(sess);
 
 
 
 
 
 
-session_t sess = {
-        -1, -1, 
-        "", "", "",
-        -1, -1, 0
-};
+        session_t sess = {
+                -1, -1, 
+                "", "", "",
+                NULL, -1,
+                -1, -1, 0
+        };
 
-int listenfd = tcp_server(tunable_listen_addr, tunable_listen_port);
-int conn;
-pid_t pid;
+        int listenfd = tcp_server(tunable_listen_addr, tunable_listen_port);
+        int conn;
+        pid_t pid;
 
-while (1) {
-        conn = accept_timeout(listenfd, NULL, 0);
-        if (conn == -1)
-                ERR_EXIT("accept_timeout");
+        while (1) {
+                conn = accept_timeout(listenfd, NULL, 0);
+                if (conn == -1)
+                        ERR_EXIT("accept_timeout");
 
-        pid = fork();
-        if (pid == -1)
-                ERR_EXIT("fork");
+                pid = fork();
+                if (pid == -1)
+                        ERR_EXIT("fork");
 
-        if (pid == 0) {
-                close(listenfd);
-                sess.ctrl_fd = conn;
-                begin_session(&sess);
-        } else {
-                close(conn);
+                if (pid == 0) {
+                        close(listenfd);
+                        sess.ctrl_fd = conn;
+                        begin_session(&sess);
+                } else {
+                        close(conn);
+                }
         }
-}
 
-return 0;
+        return 0;
 }

@@ -9,6 +9,9 @@ typedef struct session {
         char cmdline[MAX_COMMAND_LINE];
         char cmd[MAX_COMMAND];
         char arg[MAX_ARG];
+        // data connection
+        struct sockaddr_in *port_addr;
+        int data_fd;
         // parent and son's communication
         int parent_fd;
         int child_fd;
