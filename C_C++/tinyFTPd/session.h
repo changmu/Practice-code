@@ -11,6 +11,7 @@ typedef struct session {
         char arg[MAX_ARG];
         // data connection
         struct sockaddr_in *port_addr;
+        int pasv_listen_fd;
         int data_fd;
         // parent and son's communication
         int parent_fd;
