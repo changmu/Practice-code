@@ -8,6 +8,7 @@
 
 int main(int argc, char *argv[])
 {
+        signal(SIGCHLD, SIG_IGN);
         if (getuid() != 0) {
                 fprintf(stderr, "miniftp: must be started as root\n");
                 exit(EXIT_FAILURE);
@@ -79,8 +80,8 @@ else
         session_t sess = {
                 -1, -1, 
                 "", "", "",
-                NULL, -1,
-                -1, -1, 0
+                NULL, -1, -1,
+                -1, -1, 0, 0, NULL
         };
 
         int listenfd = tcp_server(tunable_listen_addr, tunable_listen_port);

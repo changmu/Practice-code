@@ -10,5 +10,5 @@
 
 void handle_child(session_t *sess);
 
-int list_common(session_t *sess);
+int list_common(session_t *sess, int detail);
 int get_transfer_fd(session_t *sess);
