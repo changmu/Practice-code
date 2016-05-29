@@ -400,7 +400,102 @@ static void do_mode(session_t *sess)
 
 static void do_retr(session_t *sess)
 {
+        // 创建数据连接
+        int ret = get_transfer_fd(sess);
+        if (ret == 0)
+                return;
 
+        long long offset = sess->restart_pos;
+        sess->restart_pos = 0;
+
+        int fd = open(sess->arg, O_RDONLY);
+        if (fd == -1) {
+                ftp_reply(sess, FTP_FILEFAIL, "Failed to open file.");
+                return;
+        }
+
+        ret = lock_file_read(fd);
+        if (ret == -1) {
+                ftp_reply(sess, FTP_FILEFAIL, "Failed to lock file.");
+                return;
+        }
+
+        struct stat sbuf;
+        ret = fstat(fd, &sbuf);
+        if (!S_ISREG(sbuf.st_mode)) {
+                ftp_reply(sess, FTP_FILEFAIL, "Failed to stat file.");
+                return;
+        }
+
+        if (offset) {
+                ret = lseek(fd, offset, SEEK_SET);
+                if (ret == -1) {
+                        ftp_reply(sess, FTP_FILEFAIL, "Failed to open file.");
+                        return;
+                }
+        }
+
+        // 150
+        char text[1024] = {0};
+        if (sess->is_ascii) {
+                sprintf(text, "Open ASCII mode data connection for %s (%lld bytes).", 
+                        sess->arg, (long long) sbuf.st_size);
+        } else {
+                sprintf(text, "Open BINARY mode data connection for %s (%lld bytes).", 
+                        sess->arg, (long long) sbuf.st_size);
+        }
+        ftp_reply(sess, FTP_DATACONN, text);
+
+        // 下载文件
+        int flag = 0;
+        /*char buf[4096];
+        while (1) {
+                ret = read(fd, buf, sizeof(buf));
+                if (ret == -1) {
+                        if (errno == EINTR)
+                                continue;
+                        else {
+                                flag = 1;
+                                break;
+                        }
+                } else if (ret == 0) {
+                        flag = 0;
+                        break;
+                }
+
+                if (writen(sess->data_fd, buf, ret) != ret) {
+                        flag = 2;
+                        break;
+                }
+        }*/
+        long long bytes_to_send = sbuf.st_size;
+        if (offset > bytes_to_send) {
+                bytes_to_send = 0;
+        } else {
+                bytes_to_send -= offset;
+        }
+
+        while (bytes_to_send) {
+                int num_this_time = bytes_to_send > 4096 ? 4096 : bytes_to_send;
+                ret = sendfile(sess->data_fd, fd, NULL, num_this_time);
+                if (ret == -1) {
+                        flag = 2;
+                        break;
+                }
+                bytes_to_send -= ret;
+        }
+
+
+        // 关闭数据套接字
+        close(sess->data_fd);
+        sess->data_fd = -1;
+        if (flag == 0) {
+                ftp_reply(sess, FTP_TRANSFEROK, "File send OK.");
+        } else if (flag == 1) {
+                ftp_reply(sess, FTP_BADSENDFILE, "Faile reading file.");
+        } else if (flag == 2) {
+                ftp_reply(sess, FTP_BADSENDNET, "Faile writting to socket.");
+        }
 }
 
 static void do_stor(session_t *sess)
@@ -613,25 +708,25 @@ int list_common(session_t *sess, int detail)
 
                         mode_t mode = sbuf.st_mode;
                         switch (mode & S_IFMT) {
-                                case S_IFSOCK:
+                        case S_IFSOCK:
                                 perms[0] = 's';
                                 break;
-                                case S_IFREG:
+                        case S_IFREG:
                                 perms[0] = '-';
                                 break;
-                                case S_IFDIR:
+                        case S_IFDIR:
                                 perms[0] = 'd';
                                 break;
-                                case S_IFLNK:
+                        case S_IFLNK:
                                 perms[0] = 'l';
                                 break;
-                                case S_IFBLK:
+                        case S_IFBLK:
                                 perms[0] = 'b';
                                 break;
-                                case S_IFCHR:
+                        case S_IFCHR:
                                 perms[0] = 'c';
                                 break;
-                                case S_IFIFO:
+                        case S_IFIFO:
                                 perms[0] = 'p';
                                 break;
                         }
