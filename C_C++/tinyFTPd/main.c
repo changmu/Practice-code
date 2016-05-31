@@ -6,6 +6,8 @@
 #include "parseconfig.h"
 #include "tunable.h"
 
+extern session_t *p_sess;
+
 int main(int argc, char *argv[])
 {
         signal(SIGCHLD, SIG_IGN);
@@ -78,11 +80,21 @@ else
 
 
         session_t sess = {
+                /* 控制连接 */
+                0, -1, "", "", "",
+                /* 数据连接 */
+                NULL, -1, -1, 0,
+                /* 限速 */
+                0, 0, 0, 0,
+                /* 父子进程通道 */
                 -1, -1, 
-                "", "", "",
-                NULL, -1, -1,
-                -1, -1, 0, 0, NULL
+                /* FTP协议状态 */
+                0, 0, NULL, 0
         };
+        p_sess = &sess;
+
+        sess.bw_upload_rate_max = tunable_upload_max_rate;
+        sess.bw_download_rate_max = tunable_download_max_rate;
 
         int listenfd = tcp_server(tunable_listen_addr, tunable_listen_port);
         int conn;

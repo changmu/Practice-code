@@ -5,6 +5,7 @@
 
 void begin_session(session_t *sess)
 {
+        setOOB(sess->ctrl_fd);
         // int ret;
         /* int sockfds[2];
         ret = socketpair(PF_UNIX, SOCK_STREAM, 0, sockfds);
