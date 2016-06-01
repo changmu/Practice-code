@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../common.h"
+#include "common.h"
 
 typedef struct hash hash_t;
 typedef unsigned (*hashfunc_t)(unsigned, void *);

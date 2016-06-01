@@ -28,6 +28,10 @@ typedef struct session {
         long long restart_pos;
         char *rnfr_name;
         int abor_received;
+
+        // 连接数限制
+        unsigned num_clients;
+        unsigned num_this_ip;
 } session_t;
 
 void begin_session(session_t *sess);

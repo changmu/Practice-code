@@ -4,8 +4,7 @@
 #include "ftpcodes.h"
 #include "privsock.h"
 
-void ftp_reply(session_t *sess, int status, const char *text);
-void ftp_lreply(session_t *sess, int status, const char *text);
+
 int port_active(session_t *sess);
 int pasv_active(session_t *sess);
 int get_port_fd(session_t *sess);
@@ -21,8 +20,8 @@ static void do_quit(session_t *sess);
 static void do_port(session_t *sess);
 static void do_pasv(session_t *sess);
 static void do_type(session_t *sess);
-static void do_stru(session_t *sess);
-static void do_mode(session_t *sess);
+// static void do_stru(session_t *sess);
+// static void do_mode(session_t *sess);
 static void do_retr(session_t *sess);
 static void do_stor(session_t *sess);
 static void do_appe(session_t *sess);
@@ -43,6 +42,9 @@ static void do_size(session_t *sess);
 static void do_stat(session_t *sess);
 static void do_noop(session_t *sess);
 static void do_help(session_t *sess);
+
+static void do_site_chmod(session_t *sess, char *chmod_arg);
+static void do_site_umask(session_t *sess, char *chmod_arg);
 
 typedef struct ftpcmd {
         const char *cmd;
@@ -65,8 +67,8 @@ static ftpcmd_t ctrl_cmds[] = {
         { "PORT", do_port },
         { "PASV", do_pasv },
         { "TYPE", do_type },
-        { "STRU", do_stru },
-        { "MODE", do_mode },
+        { "STRU", NULL/*do_stru*/ },
+        { "MODE", NULL/*do_mode*/ },
         /* 服务命令 */
         { "RETR", do_retr },
         { "STOR", do_stor },
@@ -478,7 +480,6 @@ static void do_pass(session_t *sess)
         }
 
         struct spwd *sp = getspnam(pw->pw_name);
-        printf("debug: pw_name=[%s]\n", pw->pw_name);
         if (sp == NULL) {
                 ftp_reply(sess, FTP_LOGINERR, "Login incorrect.");
                 return;
@@ -603,6 +604,7 @@ static void do_type(session_t *sess)
         }
 }
 
+/*
 static void do_stru(session_t *sess)
 {
 
@@ -612,7 +614,7 @@ static void do_mode(session_t *sess)
 {
 
 }
-
+*/
 static void do_retr(session_t *sess)
 {
         // 创建数据连接
@@ -862,7 +864,20 @@ static void do_rnto(session_t *sess)
 
 static void do_site(session_t *sess)
 {
+    char cmd[100] = {0};
+    char arg[100] = {0};
 
+    str_split(sess->arg, cmd, arg, ' ');
+    if (!strcmp(cmd, "CHMOD")) {
+        printf("debug:arg[%s]\n", arg);
+        do_site_chmod(sess, arg);
+    } else if (!strcmp(cmd, "UMASK")) {
+        do_site_umask(sess, arg);
+    } else if (!strcmp(cmd, "HELP")) {
+        ftp_reply(sess, FTP_SITEHELP, "CHMOD UMASK HELP");
+    } else {
+        ftp_reply(sess, FTP_BADCMD, "unknown SITE cmd.");
+    }
 }
 
 static void do_syst(session_t *sess)
@@ -904,7 +919,9 @@ static void do_size(session_t *sess)
 
 static void do_stat(session_t *sess)
 {
-
+    ftp_lreply(sess, FTP_STATOK, "FTP server status:");
+    writen(sess->ctrl_fd, "TYPE: ACSII...\r\n", strlen("TYPE: ACSII...\r\n"));
+    ftp_reply(sess, FTP_STATOK, "End of status.");
 }
 
 static void do_noop(session_t *sess)
@@ -914,7 +931,9 @@ static void do_noop(session_t *sess)
 
 static void do_help(session_t *sess)
 {
-
+    ftp_lreply(sess, FTP_HELP, "The following commands are recognized.");
+    writen(sess->ctrl_fd, "ABOR ACCT...\r\n", strlen("ABOR ACCT...\r\n"));
+    ftp_reply(sess, FTP_HELP, "Help OK.");
 }
 
 
@@ -1023,4 +1042,42 @@ int list_common(session_t *sess, int detail)
 
         closedir(dir);
         return 1;
+}
+
+static void do_site_chmod(session_t *sess, char *chmod_arg)
+{
+        if (!strlen(chmod_arg)) {
+                ftp_reply(sess, FTP_BADCMD, "need 2 args");
+                return;
+        }
+
+        char perm[100] = {0};
+        char file[100] = {0};
+        str_split(chmod_arg, perm, file, ' ');
+        if (!strlen(file)) {
+                ftp_reply(sess, FTP_BADCMD, "need 2 args");
+                return;
+        }
+
+        unsigned mode = str_octal_to_uint(perm);
+        if (chmod(file, mode) < 0) {
+                ftp_reply(sess, FTP_BADCMD, "chmod failed");
+        } else {
+                ftp_reply(sess, FTP_CHMODOK, "chmod ok");
+        }
+}
+
+static void do_site_umask(session_t *sess, char *chmod_arg)
+{
+        if (!strlen(chmod_arg)) {
+                static char text[1024] = {0};
+                sprintf(text, "umask is %#o", tunable_local_umask);
+                ftp_reply(sess, FTP_UMASKOK, text);
+        } else {
+                unsigned um = str_octal_to_uint(chmod_arg);
+                umask(um);
+                static char text[1024] = {0};
+                sprintf(text, "umask set to %#o", um);
+                ftp_reply(sess, FTP_UMASKOK, text);
+        }
 }

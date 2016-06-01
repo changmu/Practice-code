@@ -9,7 +9,7 @@ CFLAGS	= -Wall -g -I $(LIB_DIR) -L $(LIB_DIR)
 
 all:$(BIN)
 miniftpd: main.o session.o ftpproto.o privaparent.o str.o \
-	tunable.o parseconfig.o privsock.o
+	tunable.o parseconfig.o privsock.o hash.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LINKLIB)
 
 .c.o:
