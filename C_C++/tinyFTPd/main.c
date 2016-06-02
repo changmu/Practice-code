@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
         if (getuid() != 0) {
                 fprintf(stderr, "miniftp: must be started as root\n");
                 exit(EXIT_FAILURE);
-        } 
+        }
 
         /*================testcode begin=============================*/
         /*char str1[] = "  a b";
