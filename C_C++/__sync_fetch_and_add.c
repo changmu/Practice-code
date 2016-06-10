@@ -1,8 +1,9 @@
 #include "myLinux.h"
 
 #define N 4
-#define TAR_SUM 100000000
+#define TAR_SUM 10000000000
 
+// __thread int64_t sum;
 int64_t sum;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
