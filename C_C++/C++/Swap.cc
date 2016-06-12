@@ -51,11 +51,14 @@ int main()
     MyWidget::Widget a("123");
     MyWidget::Widget b("abc");
 
+    auto c = 1;
+
     using std::swap;
     swap(a, b);
     // std::swap(a, b);
 
     std::cout << a << std::endl;
     std::cout << b << std::endl;
+    std::cout << c << std::endl;
     return 0;
 }
