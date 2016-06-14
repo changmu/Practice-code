@@ -11,13 +11,23 @@ using namespace std;
 class Timer {
 public:
     Timer() {
-        f();
+        // f();
     }
+protected:
+    virtual void print() = 0;
+    void print2() {
+        print();
+    }
+        /*
+    {
+        printf("Timer\n"); 
+    }*/
 private:
-    void f() {
+    void f()
+    {
         while (1) {
-            printf("hello\n");
-            sleep(2);
+            print();
+            sleep(1);
         }
     }
     int hello_;
@@ -25,8 +35,13 @@ private:
 
 class C : private Timer {
 public:
-    C() {}
+    C() {
+        Timer::print2();
+    }
     int i_;
+    virtual void print() {
+        printf("C.\n"); 
+    }
 };
 
 int main()
