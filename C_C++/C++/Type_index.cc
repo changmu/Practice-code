@@ -9,14 +9,12 @@
 using namespace std;
 using boost::typeindex::type_id_with_cvr;
 
-class Abc {
-    int a;
-};
+template<typename T>
+void f(T&& a) {
+    cout << type_id_with_cvr<T>().pretty_name() << endl;
+}
 
 int main()
 {
-    Abc a;
-    cout 
-    << type_id_with_cvr<Abc>().pretty_name() << endl;
     return 0;
 }

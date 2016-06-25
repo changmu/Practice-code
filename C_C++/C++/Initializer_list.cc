@@ -9,10 +9,13 @@ using namespace std;
 
 int main()
 {
-    auto a = { 1 };
-    auto b{ 2 };
+    int a = { 1 };
+    int b{ 2 };
+    int c{};
+    int d(0);
 
-    // cout << a << b << endl;
+    cout << a << b << endl;
+    cout << c << d << endl;
 
     return 0;
 }
