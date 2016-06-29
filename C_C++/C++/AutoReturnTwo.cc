@@ -23,10 +23,10 @@ int main()
         if (a > 0)
             return 1;
         else
-            return 1.23;
+            return 2;
     };
 
     cout << f(1) << endl;
-    // cout << f(-1) << endl;
+    cout << f(-1) << endl;
     return 0;
 }

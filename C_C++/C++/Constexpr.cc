@@ -8,18 +8,26 @@
 
 using namespace std;
 
-constexpr int pow(int base, int exp)
+constexpr auto add(auto tar)
 {
-    // return exp == 0 ? 1 : base * pow(base, exp - 1);
-    auto result = 1;
-    for (int i = 0; i < exp; ++i)
-        result *= base;
+    decltype(tar) i = 0, result = 0;
+    for ( ; i < tar; ++i)
+        ++result;
+    return result;
+}
+
+auto add2(auto tar)
+{
+    decltype(tar) i = 0, result = 0;
+    for ( ; i < tar; ++i)
+        ++result;
     return result;
 }
 
 int main()
 {
-    array<int, pow(2, 3)> a;
-    // cout << pow(2, 20) << endl;
+    constexpr auto a = add(100000000);
+    cout << a << endl;
+    cout << add2(1000000000) << endl;
     return 0;
 }
