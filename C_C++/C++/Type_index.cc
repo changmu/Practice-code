@@ -17,5 +17,8 @@ void f(T&& a) {
 
 int main()
 {
+    const int a = 10;
+
+    f(a);
     return 0;
 }
