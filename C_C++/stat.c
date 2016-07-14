@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
     printf("Last status change:     %s", ctime(&sb.st_ctime));
     printf("Last file access:       %s", ctime(&sb.st_atime));
     printf("Last file modification: %s", ctime(&sb.st_mtime));
+    printf("block size: %d\n", sb.st_blksize);
 
     return 0;
 }
