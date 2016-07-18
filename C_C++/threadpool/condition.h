@@ -1,6 +1,11 @@
 #pragma once
 
-#include "myLinux.h"
+#include <unistd.h>
+#include <pthread.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <signal.h>
+#include <errno.h>
 
 typedef struct condition {
         pthread_mutex_t pmutex;
