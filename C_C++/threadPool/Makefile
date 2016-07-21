@@ -2,7 +2,7 @@ BIN= threadpool
 all: $(BIN)
 
 threadpool: threadpool.c
-	gcc $< -o $@ -lpthread
+	gcc $< -g -o $@ -lpthread
 
 .PHONY: clean
 clean:

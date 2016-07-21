@@ -11,7 +11,18 @@ int print_ntimes(char *str)
 
 void *th_fun(void *arg)
 {
+    int             err;
+    int             detachstate;
+    int             i = 1;
+    size_t          stacksize;
+    void            *stackaddr;
+    pthread_t       tid;
+    pthread_attr_t  attr;
+    pthread_attr_getstack(&attr, &stackaddr, &stacksize);
+    printf("stackaddr = %p\n", stackaddr);
+    printf("stacksize = %x\n", (int) stacksize);
     int n = 3;
+
     while (n--) {
         printf("hello qiu\n");
     }
@@ -60,6 +71,7 @@ int main(int argc, char *argv[])
             exit(1);
         }
         printf("%d\n", i++);
+        sleep(2);
     }
 
     pthread_attr_destroy(&attr);

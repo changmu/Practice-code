@@ -22,19 +22,19 @@ int main(int argc, char *argv[])
     }
     int num = atoi(argv[1]);
     int j, err;
-    pthread_t tid[20];
+    pthread_t tid;
 
     N = MAXN / num;
 
     for (j = 0; j < num; ++j) {
-        err = pthread_create(&tid[j], NULL, thr_fn, NULL);
+        err = pthread_create(&tid, NULL, thr_fn, NULL);
         if (err) {
             printf("%s..\n", strerror(err));
         }
     }
 
-    for (j = 0; j < num; ++j)
-        pthread_join(tid[j], NULL);
+    // for (j = 0; j < num; ++j)
+        // pthread_join(tid[j], NULL);
     printf("%lld\n", sum);
 
     return 0;

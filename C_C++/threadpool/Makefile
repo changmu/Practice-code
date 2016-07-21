@@ -1,6 +1,6 @@
 .PHONY: clean all
 
-BIN	= makeThreadPool
+BIN	= makeThreadPool main
 OBJS= threadpool.o condition.o
 CC	= gcc
 CXX	= g++
@@ -21,4 +21,4 @@ makeThreadPool:$(OBJS)
 	$(CXX) $(CFLAGS) -c $< -o $@
 
 clean:
-	-rm -f *.o $(BIN)
+	-rm -f *.o $(BIN) libthreadpool.a 
