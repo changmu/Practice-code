@@ -1,4 +1,4 @@
-// #define DEBUG
+#define DEBUG
 
 #include <iostream>
 #include <fstream>
@@ -60,9 +60,8 @@ int main(int argc, char *argv[])
 {
     signal(SIGUSR1, SIGUSR1_handle);
 #ifdef DEBUG
-    FILE *fp = stdout;
-#else
     FILE *fp = fopen("out.log", "w");
+#else
     daemon(0, 0);
 #endif
     
@@ -122,7 +121,7 @@ int main(int argc, char *argv[])
         root["mem"] = val;
 
 
-        // get disk stat 'KB'
+        // get disk stat 'MB'
         arr.clear();
         for (i = 0; i < g_numsOfPartitions; ++i) {
             val.clear();
@@ -172,7 +171,7 @@ int main(int argc, char *argv[])
         root["netcard"] = val2;
 
         time_t leftSeconds = g_kIntervalSeconds - (time(NULL) - beginInterval);
-#if 0   
+#ifndef DEBUG
         if (leftSeconds > 0)
             myNanoSleep(leftSeconds);
 #endif
@@ -184,8 +183,8 @@ int main(int argc, char *argv[])
            data. */ 
             curl_easy_setopt(curl, CURLOPT_URL, "http://183.60.189.19/receiveStreamFile.php");
         /* Now specify the POST data */ 
-            strcpy(buf, writer.write(root).c_str());
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buf);
+            // strcpy(buf, writer.write(root).c_str());
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, writer.write(root).c_str());
 
 #ifndef DEBUG
             /* Perform the request, res will get the return code */ 
@@ -197,14 +196,17 @@ int main(int argc, char *argv[])
 
             /* always cleanup */ 
             curl_easy_cleanup(curl);
-
-            // std::cout << time(NULL) << std::endl << writer.write(root) << std::endl;
-            fprintf(fp, "%s", writer.write(root).c_str());
+#ifdef DEBUG
+            std::cout << time(NULL) << std::endl << writer.write(root) << std::endl;
+            // fprintf(fp, "%s", buf);
             fflush(fp);
+#endif
         }  
     }
     
     curl_global_cleanup();
+#ifdef DEBUG
     fclose(fp);
+#endif
     return 0;
 }

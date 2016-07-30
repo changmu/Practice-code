@@ -52,7 +52,7 @@ static void getNumsOfPartitions()
 
 static bool checkPartition(const char *dir) 
 {
-    static const char *kTestString = "The proper function of man is to live, not to exist.";
+    static const char *kTestString = "Faith will move mountains.";
     static const int kStringLength = strlen(kTestString);
     static const char *kFileName = "partition_stat.writeTopartitionOK.tmp";
 
@@ -109,9 +109,9 @@ static void getPartitionStat(const char *dir, partitions_t *part)
     if (ret == -1)
         ERR_EXIT("statfs");
 
-    /* unit: 'KByte' */
-    part->totalSize = ((unsigned long long) partition.f_blocks * partition.f_bsize) >> 10;
-    part->freeSize = ((unsigned long long) partition.f_bfree * partition.f_bsize) >> 10;
+    /* unit: 'MByte' */
+    part->totalSize = ((unsigned long long) partition.f_blocks * partition.f_bsize) >> 20;
+    part->freeSize = ((unsigned long long) partition.f_bfree * partition.f_bsize) >> 20;
 
     part->usedRate = 100.0 * (part->totalSize - part->freeSize) / part->totalSize;
     part->valid = checkPartition(part->dir.c_str());

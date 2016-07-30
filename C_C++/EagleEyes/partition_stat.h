@@ -3,8 +3,8 @@
 
 #define MAX_PARTITIONS_NUM 66
 
-// KByte
-typedef unsigned long partitionSize_t;
+// MByte
+typedef unsigned partitionSize_t;
 
 struct partitions_t {
     std::string name;
