@@ -99,7 +99,6 @@ int main(int argc, char *argv[])
             } else if (events[i].events | EPOLLIN) {
                 sock = events[i].data.fd;
 
-                int var1, var2;
                 char recvbuf[1024] = { 0 };
                 ret = read(sock, recvbuf, sizeof(recvbuf));
                 if (ret == -1)
@@ -115,14 +114,6 @@ int main(int argc, char *argv[])
                 }
 
                 printf("receive:[%s]\n", recvbuf);
-
-                sscanf(recvbuf, "%d%d", &var1, &var2);
-                char sendbuf[1024] = { 0 };
-                sprintf(sendbuf, "%d", var1 + var2);
-
-                ret = write(sock, sendbuf, strlen(sendbuf));
-                if (ret == -1)
-                    ERR_EXIT("write");
             }
         }        
     }
