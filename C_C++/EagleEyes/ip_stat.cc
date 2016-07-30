@@ -14,6 +14,8 @@
 #include "ip_stat.h"
 
 #include "threadpool/threadpool.h"
+#include "jsoncpp/json/json.h"
+#include <curl/curl.h>
 
 #include <string>
 #include <map>

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "jsoncpp/json/json.h"
+#include <curl/curl.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -18,8 +19,6 @@
 #include "mem_stat.h"
 #include "partition_stat.h"
 #include "net_stat.h"
-
-#include <curl/curl.h>
 
 
 static char buf[100000];
@@ -61,14 +60,14 @@ int main(int argc, char *argv[])
     signal(SIGUSR1, SIGUSR1_handle);
 #ifdef DEBUG
     FILE *fp = fopen("out.log", "w");
-#else
-    daemon(0, 0);
 #endif
+    daemon(0, 0);
     
     Json::FastWriter writer;
     Json::Value root;
     Json::Value val;
     Json::Value arr;
+    Json::Value val2;
 
     CURL *curl;
     CURLcode res;
@@ -133,7 +132,15 @@ int main(int argc, char *argv[])
             val["rw_ok"] = g_partitions[i].valid;
             arr.append(val);
         }
-        root["disk"] = arr;
+        val.clear();
+        val2.clear();
+        // val["name"] = "total";
+        val["total_size"] = g_partitions[i].totalSize;
+        val["free_size"] = g_partitions[i].freeSize;
+        val["used_rate"] = g_partitions[i].usedRate;
+        val2["per_disk"] = arr;
+        val2["total"] = val;
+        root["disk"] = val2;
 
         // get net stat
         arr.clear();
@@ -165,40 +172,40 @@ int main(int argc, char *argv[])
         val["in_pack"] = g_netcards[i].recvKpacksPerSec;
         val["out_pack"] = g_netcards[i].sendKpacksPerSec;
 
-        Json::Value val2;
+        val2.clear();
         val2["total"] = val;     
         val2["per_netcard"] = arr;
         root["netcard"] = val2;
 
         time_t leftSeconds = g_kIntervalSeconds - (time(NULL) - beginInterval);
-#ifndef DEBUG
-        if (leftSeconds > 0)
+
+        if (leftSeconds > 0) {
             myNanoSleep(leftSeconds);
-#endif
+        }
+
         /* get a curl handle */ 
         curl = curl_easy_init();
         if(curl) {
-        /* First set the URL that is about to receive our POST. This URL can
-           just as well be a https:// URL if that is what should receive the
-           data. */ 
+            /* First set the URL that is about to receive our POST. This URL can
+               just as well be a https:// URL if that is what should receive the
+               data. */ 
             curl_easy_setopt(curl, CURLOPT_URL, "http://183.60.189.19/receiveStreamFile.php");
-        /* Now specify the POST data */ 
-            // strcpy(buf, writer.write(root).c_str());
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, writer.write(root).c_str());
+            /* Now specify the POST data */ 
+            strncpy(buf, writer.write(root).c_str(), sizeof(buf) - 1);
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buf);
 
-#ifndef DEBUG
-            /* Perform the request, res will get the return code */ 
-            res = curl_easy_perform(curl);        
-            /* Check for errors */ 
+            /* Perform the request, res will get the return code */
+            res = curl_easy_perform(curl);
+            /* Check for errors */
             if(res != CURLE_OK)
                 fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-#endif
 
             /* always cleanup */ 
             curl_easy_cleanup(curl);
 #ifdef DEBUG
-            std::cout << time(NULL) << std::endl << writer.write(root) << std::endl;
-            // fprintf(fp, "%s", buf);
+            // std::cout << time(NULL) << std::endl << writer.write(root) << std::endl;
+
+            fprintf(fp, "%s", buf);
             fflush(fp);
 #endif
         }  

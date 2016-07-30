@@ -12,7 +12,7 @@ CFLAGS	+= -Wall -fPIC -g -static -I $(LIBDIR) -L $(LIBDIR)
 CXXFLAGS+= -Wall -Wno-unused-result -fPIC -g -static -I $(LIBDIR) -L $(LIBDIR)
 
 all:makeJsonLib makeThreadPollLib $(BIN)
-
+# g++ -static -I. -Llib curl_test.cc  /usr/local/lib/libcurl.a -lz -lrt  -lpthread -ljson
 checkHardware:$(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LINKLIB) /usr/local/lib/libcurl.a -lz -lrt
 

@@ -45,6 +45,7 @@ static void getNumsOfPartitions()
 
         ++i;
     }
+    g_partitions[i].name = "total";
     g_numsOfPartitions = i;
 
     pclose(fp);
@@ -115,6 +116,9 @@ static void getPartitionStat(const char *dir, partitions_t *part)
 
     part->usedRate = 100.0 * (part->totalSize - part->freeSize) / part->totalSize;
     part->valid = checkPartition(part->dir.c_str());
+
+    g_partitions[g_numsOfPartitions].totalSize += part->totalSize;
+    g_partitions[g_numsOfPartitions].freeSize += part->freeSize;
 }
 
 void getDiskStat()
@@ -122,9 +126,15 @@ void getDiskStat()
     if (g_numsOfPartitions == 0)
         getNumsOfPartitions();
 
-    int i;
+    int i = g_numsOfPartitions;
+    g_partitions[i].totalSize = 0;
+    g_partitions[i].freeSize = 0;
+
     for (i = 0; i < g_numsOfPartitions; ++i)
         getPartitionStat(g_partitions[i].dir.c_str(), &g_partitions[i]);
+    
+    g_partitions[i].usedRate = 100.0 * (g_partitions[i].totalSize - g_partitions[i].freeSize) / g_partitions[i].totalSize;
+
 }
 
 #if 0
