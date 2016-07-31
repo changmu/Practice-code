@@ -114,7 +114,7 @@ int main(void)
     Json::Value value;
 
     if (reader.parse(chunk.memory, value)) {
-      if (value["Delays"].size() == 0)
+      if (value["Count"] == 0)
         printf("invalid\n");
       else
         printf("valid\n");

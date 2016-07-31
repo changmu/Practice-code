@@ -188,8 +188,12 @@ int main(int argc, char *argv[])
         if(curl) {
             /* First set the URL that is about to receive our POST. This URL can
                just as well be a https:// URL if that is what should receive the
-               data. */ 
-            curl_easy_setopt(curl, CURLOPT_URL, "http://183.60.189.19/receiveStreamFile.php");
+               data. 
+                http://183.60.189.19/db/stored_baseDB.php
+                http://183.60.189.19/receiveStreamFile.php
+
+            */ 
+            curl_easy_setopt(curl, CURLOPT_URL, "http://183.60.189.19/db/stored_baseDB.php");
             /* Now specify the POST data */ 
             strncpy(buf, writer.write(root).c_str(), sizeof(buf) - 1);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buf);
