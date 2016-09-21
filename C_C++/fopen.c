@@ -3,10 +3,17 @@
 
 int main(int argc, char **argv)
 {
-    FILE *fp = fopen(argv[1], "w+");
-    char buf[1024] = "321";
-    fwrite(buf, 1, 3, fp);
-    buf[3] = '\0';
-    // puts(buf);
+    FILE *fp = fopen("/dev/shm/lb_transmit_node.pid", "w");
+    if (!fp)
+    {
+        fprintf(stderr, "opening /dev/shm/lb_transmit_node.pid failed\n");
+        return -1;
+    }
+
+    char buf[8] = {0};
+    snprintf(buf, sizeof(buf), "%d", 10);
+    fwrite(buf, sizeof(char), strlen(buf), fp);
+    fclose(fp); 
+
     return 0;
 }

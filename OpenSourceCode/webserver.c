@@ -22,7 +22,7 @@
 #include <getopt.h>
 
 // #define DEFAULTIP "127.0.0.1"
-#define DEFAULTIP "192.168.220.129"
+#define DEFAULTIP "10.0.0.170"
 #define DEFAULTPORT "80"
 #define DEFAULTBACK "10"
 #define DEFAULTDIR "/home"
