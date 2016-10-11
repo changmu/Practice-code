@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     err = pthread_join(tid, NULL);
     while (1)
         if (err) {
-            printf("%s\n", strerror(err));
+            printf("... %s\n", strerror(err));
             pthread_exit((void *) 1);
         }
 

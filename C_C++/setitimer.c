@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     new_val.it_value.tv_sec = 3;
     new_val.it_value.tv_usec = 0;
 
-    new_val.it_interval.tv_sec = 1;
+    new_val.it_interval.tv_sec = 0;
     new_val.it_interval.tv_usec = 0;
 
     setitimer(ITIMER_REAL, &new_val, NULL);
