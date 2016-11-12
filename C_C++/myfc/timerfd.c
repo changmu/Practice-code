@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 
     /* Create a CLOCK_REALTIME absolute timer with initial expiration and interval as specified in command line */
     new_value.it_value.tv_sec = now.tv_sec + atoi(argv[1]);
-    new_value.it_value.tv_nsec = now.nsec;
+    new_value.it_value.tv_nsec = now.tv_nsec;
     if (argc == 2) {
         new_value.it_interval.tv_sec = 0;
         max_exp = 1;
