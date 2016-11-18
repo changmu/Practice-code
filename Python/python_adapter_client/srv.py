@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import socket
 import struct
 import time
@@ -29,4 +30,3 @@ time.sleep(1)
 while (1):
     ret = s.recv(1000)
     pkt_recv += 1
-

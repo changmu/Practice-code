@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import socket
 import struct
 import time
@@ -38,4 +39,3 @@ for i in range(0, pkt_all_cnt):
     cnt += 1
 
 print "ok/all %d/%d" % (pkt_ok_cnt, pkt_all_cnt)
-
