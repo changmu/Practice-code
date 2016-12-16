@@ -31,11 +31,15 @@ int getIpByHost(const char *host, struct in_addr *ip)
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
+    if (argc != 2) {
+        fprintf(stderr, "usage: %s qq.com\n", argv[0]);
+        return 1;
+    }
     struct in_addr ip;
-    if (!getIpByHost("l3.lonlife.org", &ip))
-        printf("l3.lonlife.org: %s\n", inet_ntoa(ip));
+    if (!getIpByHost(argv[1], &ip))
+        printf("%s: %s\n", argv[1], inet_ntoa(ip));
     else
         printf("err.\n");
     return 0;
