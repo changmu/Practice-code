@@ -1,0 +1,5 @@
+
+In the Add to project field, select TextFinder.pro and click Finish or Done to open the file in the code editor.
+Select Add > Add Prefix.
+In the Prefix field, replace the default prefix with a slash (/).
+Select Add > Add Files, to locate and add input.txt.
