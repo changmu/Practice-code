@@ -39,4 +39,6 @@ func main() {
     bit_map.Add(98)
     fmt.Println("96:", bit_map.Has(96))
     fmt.Println("98:", bit_map.Has(98))
+
+    fmt.Println(32<<(^uint(0)>>63))
 }
