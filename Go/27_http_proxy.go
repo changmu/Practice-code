@@ -4,7 +4,7 @@ package main
 import (
 	// "bytes"
 	"fmt"
-    "io"
+	"io"
 	"log"
 	"net"
 	"net/url"
@@ -17,7 +17,7 @@ func main() {
 	// 绑定端口
 	listener, err := net.Listen("tcp", ":8081")
 	panicIf(err)
-    log.Print("listening *:8081")
+	log.Print("listening *:8081")
 	// 接受服务
 	for {
 		client, err := listener.Accept()
@@ -39,7 +39,7 @@ func handleClientRequest(client net.Conn) {
 	}
 	defer client.Close()
 
-    log.Print("get client: ", client.RemoteAddr())
+	log.Print("get client: ", client.RemoteAddr())
 
 	// 读取请求头
 	var buf [1024]byte

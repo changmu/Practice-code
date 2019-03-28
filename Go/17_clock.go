@@ -1,37 +1,37 @@
 package main
 
 import (
-    "net"
-    "log"
-    "io"
-    "time"
+	"io"
+	"log"
+	"net"
+	"time"
 )
 
 func main() {
-    listener, err := net.Listen("tcp", "localhost:8080")
-    if err != nil {
-        log.Fatal(err)
-    }
+	listener, err := net.Listen("tcp", "localhost:8080")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    for {
-        conn, err := listener.Accept()
-        if err != nil {
-            log.Print(err)
-            continue
-        }
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Print(err)
+			continue
+		}
 
-        go handleConn(conn)
-    }
+		go handleConn(conn)
+	}
 }
 
 func handleConn(c net.Conn) {
-    defer c.Close()
-    for {
-        _, err := io.WriteString(c, time.Now().Format(time.ANSIC + "\n"))
-        if err != nil {
-            return
-        }
+	defer c.Close()
+	for {
+		_, err := io.WriteString(c, time.Now().Format(time.ANSIC+"\n"))
+		if err != nil {
+			return
+		}
 
-        time.Sleep(1 * time.Second)
-    }
+		time.Sleep(1 * time.Second)
+	}
 }

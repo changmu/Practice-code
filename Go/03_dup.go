@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-    a := 14
-    s := "abc"
-    fmt.Printf("%#X, T=%T, v=%v c=%c\n", a, a, a, a, s)
+	a := 14
+	s := "abc"
+	fmt.Printf("%#X, T=%T, v=%v c=%c\n", a, a, a, a, s)
 
 	counts := make(map[string]int)
 	input := bufio.NewScanner(os.Stdin)
