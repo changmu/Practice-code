@@ -1,22 +1,10 @@
+'use strict';
 
-// tag1:
-// for (let i = 0; i < 3; ++i) {
-//     if (i == 1) {
-//         break tag1;
-//     }
-//     console.log("i=", i)
-// }
-// // output
-// // i=0
+let log = console.log;
+let alert = log;
 
-
-tag1:
-for (let i = 0; i < 3; ++i) {
-    if (i == 1) {
-        continue tag1;
-    }
-    console.log("i=", i)
+function showMenu({ title = "Menu", width = 100, height = 200 }={}) {
+    alert( `${title} ${width} ${height}` );
 }
-// output
-// i=0
-// i=2
+  
+showMenu({}); // Menu 100 200
