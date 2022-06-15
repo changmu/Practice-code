@@ -4,21 +4,17 @@ let log = console.log;
 let alert = log;
 
 
-function User(name, birthday) {
-    this.name = name;
-    this.birthday = birthday;
+let animal = {
+    eats: true,
+    walk() {
+      alert("Animal walk");
+    }
+  };
   
-    // 年龄是根据当前日期和生日计算得出的
-    Object.defineProperty(this, "age", {
-      get() {
-        let todayYear = new Date().getFullYear();
-        return todayYear - this.birthday.getFullYear();
-      }
-    });
-  }
+  let rabbit = {
+    jumps: true,
+    __proto__: animal
+  };
   
-  let john = new User("John", new Date(1992, 6, 1));
-  
-  alert( john.birthday ); // birthday 是可访问的
-  alert( john.age );      // ……age 也是可访问的
-  log(Object.getOwnPropertyDescriptor(john, "age"))
+  // walk 方法是从原型中获得的
+  rabbit.walk(); // Animal walk
