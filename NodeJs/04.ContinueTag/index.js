@@ -4,17 +4,28 @@ let log = console.log;
 let alert = log;
 
 
-let animal = {
-    eats: true,
-    walk() {
-      alert("Animal walk");
-    }
-  };
+
+function* generateSequence(start, end) {
+    for (let i = start; i <= end; i++) yield i;
+  }
   
-  let rabbit = {
-    jumps: true,
-    __proto__: animal
-  };
+  function* generatePasswordCodes() {
   
-  // walk 方法是从原型中获得的
-  rabbit.walk(); // Animal walk
+    // 0..9
+    yield* generateSequence(48, 57);
+  
+    // A..Z
+    yield* generateSequence(65, 90);
+  
+    // a..z
+    yield* generateSequence(97, 122);
+  
+  }
+  
+  let str = '';
+  
+  for(let code of generatePasswordCodes()) {
+    str += String.fromCharCode(code);
+  }
+  
+  alert(str); // 0..9A..Za..z
