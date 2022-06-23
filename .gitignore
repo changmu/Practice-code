@@ -61,3 +61,6 @@ target/
 .idea/
 crawler
 go.sum
+__pycache__/
+*.jl
+*.html
