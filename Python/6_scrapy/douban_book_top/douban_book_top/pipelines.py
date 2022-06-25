@@ -7,8 +7,29 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import openpyxl
+import pymysql
+
+# 写数据到mysql
+class MysqlPipeline:
+    def __init__(self):
+        self.conn = pymysql.connect(
+            user="root", password="123456", host="127.0.0.1", port=3306, database="test"
+        )
+        self.cursor = self.conn.cursor()
+
+    def close_spider(self, spider):
+        self.conn.close()
+
+    def process_item(self, item, spider):
+        self.cursor.execute(
+            "insert into t_spider(ranking,title,rating,author) values(%s,%s,%s,%s)",
+            (item["排名"], item["书名"], item["评分"], item["作者"]),
+        )
+        self.conn.commit()
+        return item
 
 
+# 写数据到excel
 class ExcelPipeline:
     def __init__(self):
         self.wb = openpyxl.Workbook()
