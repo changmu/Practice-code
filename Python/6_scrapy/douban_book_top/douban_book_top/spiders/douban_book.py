@@ -1,6 +1,25 @@
 # coding=utf-8
 import os
+import random
+
 import scrapy
+
+# 读取代理ip
+# iplist = []
+# with open("ip代理.txt") as f:
+#     iplist = f.readlines()
+#
+#
+# # 获取ip代理
+# def getip():
+#     proxy = iplist[random.randint(0, len(iplist) - 1)]
+#     proxy = proxy.replace("\n", "")
+#     proxies = {
+#         # "http": "http://" + str(proxy),
+#         "https": "https://"
+#         + str(proxy),
+#     }
+#     return proxies
 
 
 def join_strs_with_strip(ori_strs, sep=""):
@@ -17,8 +36,12 @@ def extract_text_with_css(item, query):
 class DoubanBookSpider(scrapy.Spider):
     name = "douban_book"
     allowed_domains = ["book.douban.com"]
-    start_urls = ["http://book.douban.com/top250"]
+    start_urls = ["https://book.douban.com/top250"]
     rank = 1
+
+    def start_requests(self):  # 控制爬虫发出的第一个请求
+        # proxy = "https://183.143.37.239:40018"
+        yield scrapy.Request(self.start_urls[0])
 
     def parse(self, response):
         for book in response.css("tr.item"):
@@ -41,7 +64,8 @@ class DoubanBookSpider(scrapy.Spider):
                 "一句话简介": inq,
             }
             self.rank += 1
-
+            self.logger.info(f"parsed_book:{parsed_book}")
+            # yield parsed_book
             # 抓取详细信息
             yield scrapy.Request(
                 url=book.css(".pl2 a::attr(href)").get(),
@@ -50,9 +74,9 @@ class DoubanBookSpider(scrapy.Spider):
             )
 
         # 获取下一页
-        next_page = response.css("span.next a::attr(href)").get()
-        if next_page is not None:
-            yield response.follow(next_page, callback=self.parse)
+        # next_page = response.css("span.next a::attr(href)").get()
+        # if next_page is not None:
+        #     yield response.follow(next_page, callback=self.parse)
 
     def parse_book_detail(self, response, parsed_book):
         brief = response.css("span.hidden div.intro ::text")
