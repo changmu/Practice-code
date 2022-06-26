@@ -20,7 +20,6 @@ class DoubanBookSpider(scrapy.Spider):
     name = "douban_book"
     allowed_domains = ["book.douban.com"]
     start_urls = ["https://book.douban.com/top250"]
-    rank = 1
 
     def start_requests(self):  # 控制爬虫发出的第一个请求
         yield scrapy.Request(self.start_urls[0])
@@ -37,15 +36,15 @@ class DoubanBookSpider(scrapy.Spider):
             inq = extract_text_with_css(book, "span.inq::text")
 
             # 组装简要信息
+            self.crawler.stats.inc_value("rank")
             parsed_book = {
-                "排名": self.rank,  # 捕获值而非对象
+                "排名": self.crawler.stats.get_value("rank"),
                 "书名": title,
                 "作者": author,
                 "评分": rating,
                 "评价人数": int(comments),
                 "一句话简介": inq,
             }
-            self.rank += 1
             self.logger.info(f"parsed_book:{parsed_book}")
             # yield parsed_book
             # 抓取详细信息
