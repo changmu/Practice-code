@@ -1,3 +1,78 @@
-<!doctype html>
-<script type="module" src="user.js"></script>
-<script type="module" src="hello.js"></script>
+<!DOCTYPE html>
+
+<head>
+  <style>
+    .hour {
+      color: red
+    }
+
+    .min {
+      color: green
+    }
+
+    .sec {
+      color: blue
+    }
+  </style>
+</head>
+
+<body>
+  wind test page！
+  <hr>
+  <div id="clock">
+    <span class="hour">hh</span>:<span class="min">mm</span>:<span class="sec">ss</span>
+  </div>
+  <!-- 点击这个按钮会调用 clockStart() -->
+  <input type="button" onclick="clockStart()" value="Start">
+
+  <!-- 点击这个按钮会调用 clockStop() -->
+  <input type="button" onclick="clockStop()" value="Stop">
+  <hr>
+
+
+
+
+  <script>
+    let sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
+
+    document.body.classList.add('mainarticle');
+    document.body.classList.add('mainarticle2');
+    document.body.classList.toggle('mainarticle3');
+    document.querySelector('body').firstChild.data = document.body.className
+    console.log(document.body.className)
+
+    console.log('hello');
+    console.log('world');
+    // document.querySelector('body').firstChild.data = 'h'
+
+    function update() {
+      let clock = document.getElementById('clock');
+      let date = new Date(); // (*)
+      let hours = date.getHours();
+      if (hours < 10) hours = '0' + hours;
+      clock.children[0].innerHTML = hours;
+
+      let minutes = date.getMinutes();
+      if (minutes < 10) minutes = '0' + minutes;
+      clock.children[1].innerHTML = minutes;
+
+      let seconds = date.getSeconds();
+      if (seconds < 10) seconds = '0' + seconds;
+      clock.children[2].innerHTML = seconds;
+    }
+
+    let timerId;
+    function clockStart() { // 运行时钟
+      if (!timerId) { // 仅当时钟停止时 setInterval
+        timerId = setInterval(update, 1000);
+      }
+      update(); // (*)
+    }
+
+    function clockStop() {
+      clearInterval(timerId);
+      timerId = null; // (**)
+    }
+
+  </script>
+</body>
