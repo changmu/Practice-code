@@ -64,3 +64,4 @@ go.sum
 __pycache__/
 *.jl
 *.html
+node_modules/
