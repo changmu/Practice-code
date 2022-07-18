@@ -23,5 +23,10 @@ export default createRouter({
       name: "GitCommits",
       component: () => import('../components/C03GithubCommits.vue')
     },
+    {
+      path: "/C04AntD",
+      name: "AntD",
+      component: () => import('../components/C04AntD.vue')
+    },
   ]
 })

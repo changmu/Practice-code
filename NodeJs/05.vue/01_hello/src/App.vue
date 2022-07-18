@@ -23,11 +23,11 @@ const routes = router.getRoutes()
 
 <style scoped>
 #left {
-  width: 100px;
+  width: 120px;
   height: 500px;
   float: left;
   border: 1px solid blue;
-  padding: 10px;
+  padding: 5px;
   margin-right: 10px;
 }
 
@@ -36,10 +36,10 @@ const routes = router.getRoutes()
   height: 500px;
   float: left;
   /* border: 1px solid blue; */
-  padding: 10px;
+  padding: 5px;
 }
 
 li {
-  font-size: 5px;
+  font-size: 4px;
 }
 </style>
