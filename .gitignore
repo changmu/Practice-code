@@ -65,3 +65,4 @@ __pycache__/
 *.jl
 *.html
 node_modules/
+.DS_Store
